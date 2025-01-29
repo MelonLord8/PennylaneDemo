@@ -60,17 +60,17 @@ def create_TwoLocal(device, num_reps = 1, entanglement_type = LINEAR):
 
     def phase_rotation(params):
         for i in range(num_wires):
-            qml.PhaseShift(params[i], wires[i])
+            qml.RZ(params[i], wires[i])
     def two_local(params):
-        if (params.shape != (num_reps + 1, num_wires)):
-            raise ValueError(f"Parameters not of correct size, expected {(num_reps + 1, num_wires)}, got {params.shape}")
-        phase_rotation(params[0])
+        if (params.shape != ((num_reps + 1) * (num_wires),)):
+            raise ValueError(f"Parameters not of correct size, expected {((num_reps + 1) * (num_wires),)}, got {params.shape}")
+        phase_rotation(params[0:num_wires])
         for layer in range(1, num_reps + 1):
             if entanglement_type == SCA:
                 sca_entanglement_layer(layer)
             else:
                 entanglement_layer()
-            phase_rotation(params[layer])
+            phase_rotation(params[num_wires*layer : num_wires*(layer + 1)])
     return two_local
 
 def create_ZZFeatureMap(device, wires = None, num_reps = 1):
